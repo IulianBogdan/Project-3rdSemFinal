@@ -29,10 +29,11 @@ namespace Sem3FinalProject_Code
             manager.PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
-                RequireDigit = true,
-                RequireLowercase = true,
-                RequireUppercase = true,
+                //TODO reenable them after testing
+                RequireNonLetterOrDigit = false, //= true,
+                RequireDigit = false, //= true,
+                RequireLowercase = false, //= true,
+                RequireUppercase = false, //= true,
             };
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)

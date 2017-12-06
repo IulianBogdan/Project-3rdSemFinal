@@ -51,6 +51,27 @@ namespace Sem3FinalProject_Code.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
+        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            return Ok();
+        }
+
+        //Initial methods
+        /*
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]
@@ -317,7 +338,7 @@ namespace Sem3FinalProject_Code.Controllers
 
             return logins;
         }
-
+        
         // POST api/Account/Register
         [AllowAnonymous]
         [Route("Register")]
@@ -372,7 +393,7 @@ namespace Sem3FinalProject_Code.Controllers
             }
             return Ok();
         }
-
+        */
         protected override void Dispose(bool disposing)
         {
             if (disposing && _userManager != null)
@@ -488,7 +509,6 @@ namespace Sem3FinalProject_Code.Controllers
                 return HttpServerUtility.UrlTokenEncode(data);
             }
         }
-
         #endregion
     }
 }

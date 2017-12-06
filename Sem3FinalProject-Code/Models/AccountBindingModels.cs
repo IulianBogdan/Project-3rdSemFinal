@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 namespace Sem3FinalProject_Code.Models
 {
     // Models used as parameters to AccountController actions.
-
     public class AddExternalLoginBindingModel
     {
         [Required]
