@@ -48,10 +48,6 @@ namespace Sem3FinalProject_Code.DBFacade
         {
             for (int i = 0; i < items.Length; i++)
             {
-                if (!items[i].Validate())
-                {
-                    throw new ItemNotValidException("Item at position " + i + " is not valid.");
-                }
                 if (component.HasItem(items[i], producerEmail))
                 {
                     throw new ItemAlreadyPresentException("An item with the same identifier as the one at position " + i + " is already present");
@@ -62,10 +58,6 @@ namespace Sem3FinalProject_Code.DBFacade
         {
             for (int i = 0; i < items.Length; i++)
             {
-                if (!items[i].Validate())
-                {
-                    throw new ItemNotValidException("Item at position " + i + " is not valid.");
-                }
                 if (component.HasItem(items[i], producerEmail))
                 {
                     throw new ItemNotPresentException("There is not item with the same identifier as the one at position " + i);

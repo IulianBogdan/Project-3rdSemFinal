@@ -9,18 +9,40 @@ namespace Sem3FinalProject_Code.Models
     public class Item
     {
         private IDictionary<string, Property> properties = new Dictionary<string, Property>();
-        private ItemType type;
-        public string Name { get; set; }
-        public string ProductNumber { get; set; }
-        public string ItemTypeName { get; set; }
+        public ItemType Type { get; private set; }
+        public string Name { get; private set; }
+        public string ProductNumber { get; private set; }
 
-        //Item(name: string, productNumber: string, itemTypeName: string)
+        public Item(string name, string productNumber, ItemType itemType, IDictionary<string, string> properties)
+        {
+            if (name == null || productNumber == null || itemType == null)
+            {
+                throw new ArgumentNullException();
+            }
+            Name = name;
+            ProductNumber = productNumber;
+            Type = itemType;
+            foreach (var property in properties)
+            {
+                Property defaultProperty = Type.GetDefaultProperty(property.Key);
+                if (defaultProperty == null)
+                {
+                    throw new ArgumentException("One or more of the properties can't be in this type of item");
+                }
+                this.properties.Add(property.Key, new Property(property.Value, property.Key, defaultProperty.Type));
+            }
+        }
+
+        public Item(string productNumber)
+        {
+            ProductNumber = productNumber;
+        }
 
         /// <summary>
         /// Returns the property with the provided name if it exist, or null if it doesn't. <br/>
         /// If the property was never set it will return the default value for that property in the item type of this.
         /// </summary>
-        /// <exception cref="InvalidOperationException">If the item was not validated yet</exception>
+        /// <exception cref="InvalidOperationException">If the item was initialized without a type</exception>
         public Property GetProperty(string name)
         {
             CheckValid();
@@ -30,18 +52,18 @@ namespace Sem3FinalProject_Code.Models
             }
             catch (KeyNotFoundException)
             {
-                return type.GetDefaultProperty(name);
+                return Type.GetDefaultProperty(name);
             }
         }
 
         /// <summary>
         /// If the item type of this accept a property with the provided name, modifies the corresponding property value in this item and returns true, otherwise it just returns false.
         /// </summary>
-        /// <exception cref="InvalidOperationException">If the item was not validated yet</exception>
+        /// <exception cref="InvalidOperationException">If the item was initialized without a type</exception>
         public bool SetProperty(string name, string value)
         {
             CheckValid();
-            Property defaultProp = type.GetDefaultProperty(name);
+            Property defaultProp = Type.GetDefaultProperty(name);
             if (defaultProp == null)
             {
                 return false;
@@ -50,20 +72,11 @@ namespace Sem3FinalProject_Code.Models
             return true;
         }
 
-        /// <summary>
-        /// Checks if the item type for this item actually exists, and returns true. Otherwise returns false.
-        /// To be called before performing any other operation
-        /// </summary>
-        public bool Validate()
-        {
-            throw new NotImplementedException();
-        }
-
         private void CheckValid()
         {
-            if (type == null)
+            if (Type == null)
             {
-                throw new InvalidOperationException("The item was not validated yet.");
+                throw new InvalidOperationException("The item does not have any type.");
             }
         }
     }

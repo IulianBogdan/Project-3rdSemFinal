@@ -207,17 +207,18 @@
     <Compile Include="DBFacade\IDBFacade.cs" />
     <Compile Include="DBFacade\ItemAlreadyPresentException.cs" />
     <Compile Include="DBFacade\ItemNotPresentException.cs" />
-    <Compile Include="DBFacade\ItemNotValidException.cs" />
     <Compile Include="DBFacade\TestDBFacade.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\DeleteItemBindingModel.cs" />
     <Compile Include="Models\GeneralPropertyType.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\IPropertyType.cs" />
     <Compile Include="Models\IPropertyTypeFactory.cs" />
     <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\ItemBindingModel.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\Property.cs" />
     <Compile Include="Models\PropertyTypeFactory.cs" />

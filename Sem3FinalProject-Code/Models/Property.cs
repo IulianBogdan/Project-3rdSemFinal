@@ -16,7 +16,7 @@ namespace Sem3FinalProject_Code.Models
             private set {
                 if (!Type.Validate(value))
                 {
-                    throw new FormatException();
+                    throw new FormatException("Value for property \"" + Name + "\" must be of type " + Type.GetName());
                 }
                 this._value = value;
             }
