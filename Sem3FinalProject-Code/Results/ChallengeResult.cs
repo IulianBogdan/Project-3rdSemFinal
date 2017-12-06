@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace Sem3FinalProject_Code.Results
 {
+    /*TODO
     public class ChallengeResult : IHttpActionResult
     {
         public ChallengeResult(string loginProvider, ApiController controller)
@@ -29,4 +30,5 @@ namespace Sem3FinalProject_Code.Results
             return Task.FromResult(response);
         }
     }
+    */
 }
