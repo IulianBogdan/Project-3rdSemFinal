@@ -6,24 +6,23 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.Results;
 
 namespace Sem3FinalProject_Code.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/Account")]
-    public class MainController : ApiController
+    [RoutePrefix("api/Items")]
+    public class ItemsController : ApiController
     {
         [HttpGet]
-        [Route("GetItems")]
-        IHttpActionResult GetItems()
+        [Route("Get")]
+        public IHttpActionResult GetItems()
         {
             return Ok(User.Identity.Name);
         }
 
         [HttpPost]
         [Route("Add")]
-        IHttpActionResult AddItems(ItemBindingModel[] items)
+        public IHttpActionResult AddItems(ItemBindingModel[] items)
         {
             IList<Item> actualItems = new List<Item>(items.Length);
             for (int i = 0; i < items.Length; i++)
@@ -55,7 +54,8 @@ namespace Sem3FinalProject_Code.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is ItemAlreadyPresentException || ex is ItemNotPresentException) { 
+                if (ex is ItemAlreadyPresentException || ex is ItemNotPresentException)
+                {
                     return BadRequest(ex.Message);
                 }
                 return InternalServerError();
@@ -65,21 +65,21 @@ namespace Sem3FinalProject_Code.Controllers
 
         [HttpPut]
         [Route("Update")]
-        IHttpActionResult UpdateItems(ItemBindingModel[] items)
+        public IHttpActionResult UpdateItems(ItemBindingModel[] items)
         {
             return Ok("banana");
         }
 
         [HttpDelete]
         [Route("Delete")]
-        IHttpActionResult DeleteItems(DeleteItemBindingModel[] items)
+        public IHttpActionResult DeleteItems(DeleteItemBindingModel[] items)
         {
             return Ok("banana");
         }
         /*
         [HttpPost]
         [Route("")]
-        IHttpActionResult CreateAccount(string email, string password, string producer)
+        public IHttpActionResult CreateAccount(string email, string password, string producer)
         {
             return Ok("banana");
         }
