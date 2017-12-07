@@ -17,19 +17,22 @@ namespace Sem3FinalProject_Code.DBFacade
 
         public void AddItems(Item[] items, string producerEmail)
         {
-            CheckAllCanBeAdded(items, producerEmail);
+            CheckAllDifferent(items);
+            CheckAllNotPresent(items, producerEmail);
             component.AddItems(items, producerEmail);
         }
 
         public void DeleteItems(Item[] items, string producerEmail)
         {
-            CheckAllCanBeDeleted(items, producerEmail);
+            CheckAllDifferent(items);
+            CheckAllPresent(items, producerEmail);
             component.DeleteItems(items, producerEmail);
         }
 
         public void UpdateItems(Item[] items, string producerEmail)
         {
-            CheckAllCanBeUpdated(items, producerEmail);
+            CheckAllDifferent(items);
+            CheckAllPresent(items, producerEmail);
             component.UpdateItems(items, producerEmail);
         }
 
@@ -43,8 +46,7 @@ namespace Sem3FinalProject_Code.DBFacade
             return component.GetItemType(typeName);
         }
 
-        //TODO can be less copypasted
-        private void CheckAllCanBeAdded(Item[] items, string producerEmail)
+        private void CheckAllNotPresent(Item[] items, string producerEmail)
         {
             for (int i = 0; i < items.Length; i++)
             {
@@ -54,24 +56,28 @@ namespace Sem3FinalProject_Code.DBFacade
                 }
             }
         }
-        private void CheckAllCanBeUpdated(Item[] items, string producerEmail)
+        private void CheckAllPresent(Item[] items, string producerEmail)
         {
             for (int i = 0; i < items.Length; i++)
             {
-                if (component.HasItem(items[i], producerEmail))
+                if (!component.HasItem(items[i], producerEmail))
                 {
                     throw new ItemNotPresentException("There is not item with the same identifier as the one at position " + i);
                 }
             }
         }
-        private void CheckAllCanBeDeleted(Item[] items, string producerEmail)
+
+        private void CheckAllDifferent(Item[] items)
         {
+            IDictionary<string, int> firstOccurrences = new Dictionary<string, int>();
             for (int i = 0; i < items.Length; i++)
             {
-                if (component.HasItem(items[i], producerEmail))
+                if (firstOccurrences.ContainsKey(items[i].ProductNumber))
                 {
-                    throw new ItemNotPresentException("There is not item with the same identifier as the one at position " + i);
+                    throw new DuplicatedItemException("Item at position " + i + " duplicated. " +
+                        "First occurence " + firstOccurrences[items[i].ProductNumber]);
                 }
+                firstOccurrences.Add(items[i].ProductNumber, i);
             }
         }
 

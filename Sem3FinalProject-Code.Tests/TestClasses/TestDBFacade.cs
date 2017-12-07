@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Sem3FinalProject_Code.Models;
+using Sem3FinalProject_Code.DBFacade;
 
-namespace Sem3FinalProject_Code.DBFacade
+namespace Sem3FinalProject_Code.Tests.TestClasses
 {
     public class TestDBFacade : IDBFacade
     {
-        private ItemType testType;
+        private ItemType emptyType;
+        private IDictionary<string, IList<Item>> data;
 
-        public TestDBFacade()
+        public TestDBFacade() : this(new Dictionary<string, IList<Item>>())
+        {
+        }
+
+        public TestDBFacade(IDictionary<string, IList<Item>> data)
         {
             Dictionary<string, Property> dictionary = new Dictionary<string, Property>();
-            testType = new ItemType("test", dictionary);
+            emptyType = new ItemType("empty", dictionary);
             IPropertyTypeFactory pf = new PropertyTypeFactory();
-            dictionary.Add("banana", new Property("banana_tree", "banana", pf.GetPropertyType("string")));
-            dictionary.Add("coconut", new Property("123X567", "coconut", pf.GetPropertyType("Resolution")));
+            this.data = data;
         }
 
         public void AddItems(Item[] items, string producerEmail)
@@ -29,26 +34,39 @@ namespace Sem3FinalProject_Code.DBFacade
 
         public IList<Item> GetItems(string producerEmail)
         {
-            return new List<Item>();
+            try
+            {
+                return data[producerEmail];
+            }
+            catch (KeyNotFoundException)
+            {
+                return new List<Item>();
+            }
         }
 
         public ItemType GetItemType(string typeName)
         {
-            if (typeName == "test")
+            if (typeName == "empty")
             {
-
+                return emptyType;
             }
             return null;
         }
 
         public bool HasItem(Item item, string producerEmail)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return data[producerEmail].Contains(item);
+            }
+            catch (KeyNotFoundException)
+            {
+                return false;
+            }
         }
 
         public void UpdateItems(Item[] items, string producerEmail)
         {
-            throw new NotImplementedException();
         }
     }
 }

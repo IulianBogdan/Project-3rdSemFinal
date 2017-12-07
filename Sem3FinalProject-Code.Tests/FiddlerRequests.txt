@@ -1,0 +1,15 @@
+POST http://localhost:45337/Token HTTP/1.1
+Accept: */*
+Content-Type: application/json; charset=utf-8
+Host: localhost:45337
+Content-Length: 64
+
+grant_type=password&username=admin@example.com&password=password
+
+--
+
+GET http://localhost:45337/api/Items/Get HTTP/1.1
+Accept: */*
+Content-Type: application/json; charset=utf-8
+Host: localhost:45337
+Authorization: Bearer 3uMn...

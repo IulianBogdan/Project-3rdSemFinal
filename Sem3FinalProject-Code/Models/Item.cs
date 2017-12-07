@@ -8,7 +8,23 @@ namespace Sem3FinalProject_Code.Models
 {
     public class Item
     {
-        private IDictionary<string, Property> properties = new Dictionary<string, Property>();
+        private IDictionary<string, Property> _properties = new Dictionary<string, Property>();
+        public IList<Property> Properties
+        {
+            get
+            {
+                CheckValid();
+                IList<Property> res = Type.DefaultProperties;
+                for (int i = 0; i < res.Count; i++)
+                {
+                    if (_properties.ContainsKey(res[i].Name))
+                    {
+                        res[i] = _properties[res[i].Name];
+                    }
+                }
+                return res;
+            }
+        }
         public ItemType Type { get; private set; }
         public string Name { get; private set; }
         public string ProductNumber { get; private set; }
@@ -29,7 +45,7 @@ namespace Sem3FinalProject_Code.Models
                 {
                     throw new ArgumentException("One or more of the properties can't be in this type of item");
                 }
-                this.properties.Add(property.Key, new Property(property.Value, property.Key, defaultProperty.Type));
+                this._properties.Add(property.Key, new Property(property.Value, property.Key, defaultProperty.Type));
             }
         }
 
@@ -48,7 +64,7 @@ namespace Sem3FinalProject_Code.Models
             CheckValid();
             try
             {
-                return properties[name];
+                return _properties[name];
             }
             catch (KeyNotFoundException)
             {
@@ -68,7 +84,7 @@ namespace Sem3FinalProject_Code.Models
             {
                 return false;
             }
-            properties[name] = new Property(value, name, defaultProp.Type);
+            _properties[name] = new Property(value, name, defaultProp.Type);
             return true;
         }
 
@@ -78,6 +94,16 @@ namespace Sem3FinalProject_Code.Models
             {
                 throw new InvalidOperationException("The item does not have any type.");
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Item && ((Item) obj).ProductNumber == ProductNumber;
+        }
+
+        public override int GetHashCode()
+        {
+            return ProductNumber.GetHashCode();
         }
     }
 }
