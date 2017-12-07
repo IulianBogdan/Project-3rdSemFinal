@@ -19,5 +19,13 @@ namespace Sem3FinalProject_Code.Models
         public string ItemTypeName { get; set; }
         [Required]
         public IDictionary<string, string> Properties { get; set; }
+
+        public ItemBindingModel(Item item)
+        {
+            Name = item.Name;
+            ProductNumber = item.ProductNumber;
+            ItemTypeName = item.Type.Name;
+            Properties = item.Properties.ToDictionary((prop) => prop.Name, (prop) => prop.Value);
+        }
     }
 }

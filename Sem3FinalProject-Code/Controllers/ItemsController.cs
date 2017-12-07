@@ -17,49 +17,37 @@ namespace Sem3FinalProject_Code.Controllers
         [Route("Get")]
         public IHttpActionResult GetItems()
         {
-            return Ok(User.Identity.Name);
+            return Ok(ApplicationState.DBFacade.GetItems(User.Identity.Name).Select((item) => new ItemBindingModel(item)));
         }
 
         [HttpPost]
         [Route("Add")]
         public IHttpActionResult AddItems(ItemBindingModel[] items)
         {
-            IList<Item> actualItems = new List<Item>(items.Length);
-            for (int i = 0; i < items.Length; i++)
+            Item[] actualItems = null;
+
+            try
             {
-                ItemType type = ApplicationState.DBFacade.GetItemType(items[i].ItemTypeName);
-                if (type == null)
-                {
-                    return BadRequest("Item type of item at position " + i + " is non existant");
-                }
-                try
-                {
-                    actualItems.Add(new Item(items[i].Name, items[i].ProductNumber, type, items[i].Properties));
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ArgumentException || ex is FormatException)
-                    {
-                        return BadRequest("Error in Item at position " + i + ": " + ex.Message);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
+                actualItems = ConvertItems(items);
             }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+
             try
             {
                 ApplicationState.DBFacade.AddItems(actualItems.ToArray(), User.Identity.Name);
             }
             catch (Exception ex)
             {
-                if (ex is ItemAlreadyPresentException || ex is ItemNotPresentException)
+                if (ex is ItemAlreadyPresentException || ex is DuplicatedItemException)
                 {
                     return BadRequest(ex.Message);
                 }
                 return InternalServerError();
             }
+
             return Ok("Operation successfull");
         }
 
@@ -67,14 +55,53 @@ namespace Sem3FinalProject_Code.Controllers
         [Route("Update")]
         public IHttpActionResult UpdateItems(ItemBindingModel[] items)
         {
-            return Ok("banana");
+            Item[] actualItems = null;
+
+            try
+            {
+                actualItems = ConvertItems(items);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            try
+            {
+                ApplicationState.DBFacade.UpdateItems(actualItems, User.Identity.Name);
+            }
+            catch (Exception ex)
+            {
+                if (ex is DuplicatedItemException || ex is ItemNotPresentException)
+                {
+                    return BadRequest(ex.Message);
+                }
+                return InternalServerError();
+            }
+
+            return Ok("Operation successfull");
         }
 
         [HttpDelete]
         [Route("Delete")]
         public IHttpActionResult DeleteItems(DeleteItemBindingModel[] items)
         {
-            return Ok("banana");
+            Item[] actualItems = items.Select((item) => new Item(item.ProductNumber)).ToArray();
+
+            try
+            {
+                ApplicationState.DBFacade.DeleteItems(actualItems, User.Identity.Name);
+            }
+            catch (Exception ex)
+            {
+                if (ex is DuplicatedItemException || ex is ItemNotPresentException)
+                {
+                    return BadRequest(ex.Message);
+                }
+                return InternalServerError();
+            }
+
+            return Ok("Operation successfull");
         }
         /*
         [HttpPost]
@@ -84,5 +111,39 @@ namespace Sem3FinalProject_Code.Controllers
             return Ok("banana");
         }
         */
+    
+        private Item[] ConvertItems(ItemBindingModel[] items)
+        {
+            IList<Item> actualItems = new List<Item>(items.Length);
+            for (int i = 0; i < items.Length; i++)
+            {
+                ItemType type = ApplicationState.DBFacade.GetItemType(items[i].ItemTypeName);
+                if (type == null)
+                {
+                    throw new BadRequestException("Item type of item at position " + i + " is non existant");
+                }
+                try
+                {
+                    actualItems.Add(new Item(items[i].Name, items[i].ProductNumber, type, items[i].Properties));
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ArgumentException || ex is FormatException)
+                    {
+                        throw new BadRequestException("Error in Item at position " + i + ": " + ex.Message);
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+            }
+            return actualItems.ToArray();
+        }
+    }
+
+    internal class BadRequestException : Exception
+    {
+        internal BadRequestException(string msg) : base(msg) { }
     }
 }

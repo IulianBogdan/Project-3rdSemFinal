@@ -9,7 +9,7 @@ namespace Sem3FinalProject_Code
 {
     public static class ApplicationState
     {
-        public static IDBFacade DBFacade { get; private set; } = new CheckingDBFacade(new CachingDBFacade(new TestDBFacade()));
         public static IPropertyTypeFactory PropTypeFactory { get; private set; } = new PropertyTypeFactory();
+        public static IDBFacade DBFacade { get; private set; } = new CheckingDBFacade(new CachingDBFacade(new TestDBFacade()));
     }
 }

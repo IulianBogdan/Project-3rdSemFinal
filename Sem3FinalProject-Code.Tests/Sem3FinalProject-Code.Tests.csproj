@@ -98,9 +98,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBFacade\TestCachingDBFacade.cs" />
+    <Compile Include="DBFacade\TestCheckingDBFacade.cs" />
+    <Compile Include="Models\TestItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controllers\HomeControllerTest.cs" />
-    <Compile Include="Controllers\ValuesControllerTest.cs" />
+    <Compile Include="TestClasses\TestDBFacade.cs" />
+    <Compile Include="TestClasses\TestType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
@@ -113,6 +116,9 @@
       <Project>{A35D9C50-FBB8-49A7-9082-B6D53F3775F8}</Project>
       <Name>Sem3FinalProject-Code</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
