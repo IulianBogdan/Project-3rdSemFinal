@@ -121,7 +121,7 @@ namespace Sem3FinalProject_Code.Tests.DBFacade
             CachingDBFacade dbFacade = GetTestDBFacade();
 
             //#Caching.10
-            Assert.IsNotNull(dbFacade.GetItemType("empty"));
+            Assert.AreEqual(dbFacade.GetItemType("empty").Name, "empty");
 
             //#Caching.11
             Assert.IsNull(dbFacade.GetItemType("not existing"));

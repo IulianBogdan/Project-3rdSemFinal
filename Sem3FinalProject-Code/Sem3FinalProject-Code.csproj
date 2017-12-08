@@ -208,6 +208,7 @@
     <Compile Include="DBFacade\CachingDBFacade.cs" />
     <Compile Include="DBFacade\CheckingDBFacade.cs" />
     <Compile Include="DBFacade\ConcreteDBFacade.cs" />
+    <Compile Include="DBFacade\DuplicatedItemException.cs" />
     <Compile Include="DBFacade\IDBFacade.cs" />
     <Compile Include="DBFacade\ItemAlreadyPresentException.cs" />
     <Compile Include="DBFacade\ItemNotPresentException.cs" />

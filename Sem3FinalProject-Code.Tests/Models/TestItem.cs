@@ -59,9 +59,12 @@ namespace Sem3FinalProject_Code.Tests.Models
 
             //#Item.4
             Assert.IsNull(item.GetProperty("thisDoesNotExistForSure"));
-            Assert.IsFalse(item.SetProperty("thisDoesNotExistForSure", "banana"));
 
             //#Item.5
+            Assert.IsFalse(item.SetProperty("thisDoesNotExistForSure", "banana"));
+            Assert.IsNull(item.GetProperty("thisDoesNotExistForSure"));
+
+            //#Item.6
             IList<Property> props = item.Properties;
             Assert.AreEqual(props.Count, 2);
             foreach (Property prop in props)
@@ -77,9 +80,13 @@ namespace Sem3FinalProject_Code.Tests.Models
                 }
             }
 
-            //#Item.6
+            //#Item.7
             item.SetProperty("screenResolution", "234x345");
             Assert.AreEqual("234x345", item.GetProperty("screenResolution").Value);
+
+            //#Item.8
+            item.SetProperty("screenResolution", "134x345");
+            Assert.AreEqual("134x345", item.GetProperty("screenResolution").Value);
         }
     }
 }

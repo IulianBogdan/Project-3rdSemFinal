@@ -109,10 +109,12 @@ namespace Sem3FinalProject_Code.DBFacade
             int? id = null;
 
             string query = "SELECT ItemId FROM Item WHERE ProductNumber=@ProductNumber AND ProducerEmail=@ProducerEmail";
-            
+
             if (connection.State == System.Data.ConnectionState.Open)
             {
                 MySqlCommand cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.Add(new MySqlParameter("ProductNumber", productNumber));
+                cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
                 MySqlDataReader dataReader = cmd.ExecuteReader();
 
                 if (dataReader.Read())
