@@ -18,6 +18,10 @@ namespace Sem3FinalProject_Code.DBFacade
         {
             this.component = component;
         }
+        public void AddProducer(string producerEmail, string producerName)
+        {
+            component.AddProducer(producerEmail, producerName);
+        }
 
         public void AddItems(Item[] items, string producerEmail)
         {

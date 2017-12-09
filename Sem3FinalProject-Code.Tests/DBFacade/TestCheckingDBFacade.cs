@@ -78,6 +78,27 @@ namespace Sem3FinalProject_Code.Tests.DBFacade
                     Assert.Fail("Wrong exception. " + e.ToString());
                 }
             }
+
+            //#checking.5
+            facade = new CheckingDBFacade(new TestClasses.TestDBFacade(new Dictionary<string, IList<Item>>()
+            {
+                {"user1", new List<Item>() {
+                    new Item("Item1", "Item1", TestClasses.TestType.Type, new Dictionary<string, string>()), new Item("Item2", "Item2", TestClasses.TestType.Type, new Dictionary<string, string>())
+                } }
+            }));
+
+            try
+            {
+                facade.UpdateItems(new Item[] { new Item("ItemA", "Item1", TestClasses.TestType.Type, new Dictionary<string, string>()), new Item("ItemB", "Item2", facade.GetItemType("empty"), new Dictionary<string, string>()) }, "user1");
+                Assert.Fail("Should have thrown ItemTypeChangedException");
+            }
+            catch (Exception e)
+            {
+                if (!(e is ItemTypeChangedException))
+                {
+                    Assert.Fail("Wrong exception. " + e.ToString());
+                }
+            }
         }
 
         [TestMethod]
@@ -85,7 +106,7 @@ namespace Sem3FinalProject_Code.Tests.DBFacade
         {
             CheckingDBFacade facade = GetTestDBFacade();
 
-            //#checking.5
+            //#checking.6
             try
             {
                 facade.DeleteItems(new Item[] { new Item("Item1"), new Item("Item2"), new Item("Item1") }, "user1");
@@ -99,7 +120,7 @@ namespace Sem3FinalProject_Code.Tests.DBFacade
                 }
             }
 
-            //#checking.6
+            //#checking.7
             try
             {
                 facade.DeleteItems(new Item[] { new Item("Item2"), new Item("Item4") }, "user1");

@@ -13,3 +13,32 @@ Accept: */*
 Content-Type: application/json; charset=utf-8
 Host: localhost:45337
 Authorization: Bearer 3uMn...
+
+--
+
+POST http://localhost:45337/api/Account/Register HTTP/1.1
+Accept: */*
+Content-Type: application/json; charset=utf-8
+Host: localhost:45337
+Authorization: Bearer 3uMn...
+{"Email": "sozy@email.com", "Name":"SozyEnterprise", "Password":"password", "ConfirmPassword":"password"}
+
+--
+
+POST http://localhost:45337/api/Items/Add HTTP/1.1
+Accept: */*
+Content-Type: application/json; charset=utf-8
+Host: localhost:45337
+Authorization: Bearer BdKj...
+
+[{"Name":"Sumsang Universe S7","ProductNumber":"sms_S7","ItemTypeName":"Phone", "Properties":{"4g":"false"}}]
+
+--
+
+PUT http://localhost:45337/api/Items/Delete HTTP/1.1
+Accept: */*
+Content-Type: application/json; charset=utf-8
+Host: localhost:45337
+Authorization: Bearer BdKj...
+
+[{"ProductNumber":"sms_S7"}]

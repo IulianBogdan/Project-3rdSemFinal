@@ -15,6 +15,11 @@ namespace Sem3FinalProject_Code.DBFacade
             this.component = component;
         }
 
+        public void AddProducer(string producerEmail, string producerName)
+        {
+            component.AddProducer(producerEmail, producerName);
+        }
+
         public void AddItems(Item[] items, string producerEmail)
         {
             CheckAllDifferent(items);
@@ -33,6 +38,7 @@ namespace Sem3FinalProject_Code.DBFacade
         {
             CheckAllDifferent(items);
             CheckAllPresent(items, producerEmail);
+            CheckNoTypeChange(items, producerEmail);
             component.UpdateItems(items, producerEmail);
         }
 
@@ -44,6 +50,19 @@ namespace Sem3FinalProject_Code.DBFacade
         public ItemType GetItemType(string typeName)
         {
             return component.GetItemType(typeName);
+        }
+
+        private void CheckNoTypeChange(Item[] items, string producerEmail)
+        {
+            IList<Item> oldItems = component.GetItems(producerEmail);
+            for (int i = 0; i < items.Length; i++)
+            {
+                ItemType oldType = oldItems.Where((item) => item.ProductNumber == items[i].ProductNumber).First().Type;
+                if (items[i].Type != oldType)
+                {
+                    throw new ItemTypeChangedException("The type of an item can't be changed. Item at position " + i + " must be of type " + oldType.Name);
+                }
+            }
         }
 
         private void CheckAllNotPresent(Item[] items, string producerEmail)

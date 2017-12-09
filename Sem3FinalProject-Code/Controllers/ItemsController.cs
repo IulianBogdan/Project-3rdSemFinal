@@ -2,6 +2,7 @@
 using Sem3FinalProject_Code.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,7 +23,7 @@ namespace Sem3FinalProject_Code.Controllers
 
         [HttpPost]
         [Route("Add")]
-        public IHttpActionResult AddItems(ItemBindingModel[] items)
+        public IHttpActionResult AddItems([FromBody] ItemBindingModel[] items)
         {
             Item[] actualItems = null;
 
@@ -72,7 +73,7 @@ namespace Sem3FinalProject_Code.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is DuplicatedItemException || ex is ItemNotPresentException)
+                if (ex is DuplicatedItemException || ex is ItemNotPresentException || ex is ItemTypeChangedException)
                 {
                     return BadRequest(ex.Message);
                 }
@@ -82,7 +83,7 @@ namespace Sem3FinalProject_Code.Controllers
             return Ok("Operation successfull");
         }
 
-        [HttpDelete]
+        [HttpPut]
         [Route("Delete")]
         public IHttpActionResult DeleteItems(DeleteItemBindingModel[] items)
         {

@@ -28,6 +28,10 @@ namespace Sem3FinalProject_Code.Tests.TestClasses
         {
         }
 
+        public void AddProducer(string producerEmail, string producerName)
+        {
+        }
+
         public void DeleteItems(Item[] items, string producerEmail)
         {
         }
@@ -68,5 +72,7 @@ namespace Sem3FinalProject_Code.Tests.TestClasses
         public void UpdateItems(Item[] items, string producerEmail)
         {
         }
+
+        
     }
 }

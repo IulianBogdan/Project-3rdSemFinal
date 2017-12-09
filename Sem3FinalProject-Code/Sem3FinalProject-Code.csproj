@@ -212,7 +212,7 @@
     <Compile Include="DBFacade\IDBFacade.cs" />
     <Compile Include="DBFacade\ItemAlreadyPresentException.cs" />
     <Compile Include="DBFacade\ItemNotPresentException.cs" />
-    <Compile Include="DBFacade\TestDBFacade.cs" />
+    <Compile Include="DBFacade\ItemTypeChangedException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -9,7 +9,8 @@ namespace Sem3FinalProject_Code.DBFacade
 {
     public interface IDBFacade
     {
-        IList<Item> GetItems(string producerEmail); 
+        IList<Item> GetItems(string producerEmail);
+        void AddProducer(string producerEmail, string producerName);
         void AddItems(Item[] items, string producerEmail);
         void UpdateItems(Item[] items, string producerEmail);
         void DeleteItems(Item[] items, string producerEmail);

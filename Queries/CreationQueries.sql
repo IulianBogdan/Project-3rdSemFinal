@@ -1,18 +1,19 @@
 CREATE TABLE ItemType (
-    ItemTypeId int,
+    ItemTypeId int identity(1,1),
 	Name nvarchar(50),
+	UNIQUE (Name)
 	CONSTRAINT ItemType_Id_PK PRIMARY KEY (ItemTypeId)
 );
 
 CREATE TABLE PropertyType (
-    PropertyTypeId int,
+    PropertyTypeId int identity(1,1),
 	Name nvarchar(50),
+	UNIQUE (Name)
 	CONSTRAINT PropertyType_Id_PK PRIMARY KEY (PropertyTypeId)
 );
 
 CREATE TABLE Producer (
     Email nvarchar(150),
-	Passphrase nvarchar(50),
 	Name nvarchar(50),
 	CONSTRAINT Producer_Email_PK PRIMARY KEY (Email)
 );
@@ -20,18 +21,20 @@ CREATE TABLE Producer (
 GO
 
 CREATE TABLE Item (
-    ItemId int,
+    ItemId int identity(1,1),
 	Name nvarchar(50),
 	ProductNumber nvarchar(150),
 	ItemTypeId int,
 	ProducerEmail nvarchar(150),
+	Active bit default(1),
+	UNIQUE (ProductNumber,ProducerEmail),
 	CONSTRAINT Item_Id_PK PRIMARY KEY (ItemId),
 	CONSTRAINT Item_ItemTypeId_FK FOREIGN KEY (ItemTypeId) REFERENCES ItemType(ItemTypeId),
 	CONSTRAINT Item_ProducerEmail_FK FOREIGN KEY (ProducerEmail) REFERENCES Producer(Email)
 );
 
 CREATE TABLE Property (
-    PropertyId int,
+    PropertyId int identity(1,1),
 	Name nvarchar(50),
 	PropertyTypeId int
 	CONSTRAINT Property_Id_PK PRIMARY KEY (PropertyId),

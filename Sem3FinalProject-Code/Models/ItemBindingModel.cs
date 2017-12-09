@@ -20,12 +20,24 @@ namespace Sem3FinalProject_Code.Models
         [Required]
         public IDictionary<string, string> Properties { get; set; }
 
+        public ItemBindingModel() { }
+
         public ItemBindingModel(Item item)
         {
             Name = item.Name;
             ProductNumber = item.ProductNumber;
             ItemTypeName = item.Type.Name;
             Properties = item.Properties.ToDictionary((prop) => prop.Name, (prop) => prop.Value);
+        }
+
+        public override string ToString()
+        {
+            string res = "Name: " + Name + "\nProductN: " + ProductNumber + "\nItemType: " + ItemTypeName + "\n{";
+            foreach (var prop in Properties)
+            {
+                res += prop.Key + ": " + prop.Value + "\n";
+            }
+            return res + "}";
         }
     }
 }

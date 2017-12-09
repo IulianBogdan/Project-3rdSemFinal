@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Sem3FinalProject_Code.Models;
-using MySql.Data.MySqlClient;
+using System.IO;
+using System.Diagnostics;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace Sem3FinalProject_Code.DBFacade
 {
@@ -49,25 +52,22 @@ namespace Sem3FinalProject_Code.DBFacade
             }
         }
 
-        private MySqlConnection connection;
+        private SqlConnection connection;
         private string server;
         private string database;
         private string uid;
         private string password;
 
-        private IDBFacade component;
-
-        public ConcreteDBFacade(IDBFacade component)
+        public ConcreteDBFacade()
         {
-            server = "localhost";
-            database = "connectcsharptomysql";
-            uid = "username";
-            password = "password";
-            string connectionString = "SERVER=" + server + ";" + "DATABASE=" + database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
-
-            connection = new MySqlConnection(connectionString);
-
-            this.component = component;
+            StreamReader secretFile = new StreamReader(new FileStream("C:\\Users\\utente\\Desktop\\FinalProject\\Sem3FinalProject-Code\\dbconnect.secret", FileMode.Open));
+            server = secretFile.ReadLine();
+            database = secretFile.ReadLine();
+            uid = secretFile.ReadLine();
+            password = secretFile.ReadLine();
+            string connectionString = "Server=" + server + "; " + "Database=" + database + "; " + "User ID=" + uid + "; " + "Password=" + password + ";";
+            Debug.Print(connectionString);
+            connection = new SqlConnection(connectionString);
         }
 
         private void OpenConnection()
@@ -87,8 +87,8 @@ namespace Sem3FinalProject_Code.DBFacade
 
             if (connection.State == System.Data.ConnectionState.Open)
             {
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                SqlCommand cmd = new SqlCommand(query, connection);
+                SqlDataReader dataReader = cmd.ExecuteReader();
 
                 while (dataReader.Read())
                 {
@@ -112,10 +112,10 @@ namespace Sem3FinalProject_Code.DBFacade
 
             if (connection.State == System.Data.ConnectionState.Open)
             {
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                cmd.Parameters.Add(new MySqlParameter("ProductNumber", productNumber));
-                cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.Add(new SqlParameter("ProductNumber", productNumber));
+                cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
+                SqlDataReader dataReader = cmd.ExecuteReader();
 
                 if (dataReader.Read())
                 {
@@ -135,8 +135,8 @@ namespace Sem3FinalProject_Code.DBFacade
 
             if (connection.State == System.Data.ConnectionState.Open)
             {
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                SqlCommand cmd = new SqlCommand(query, connection);
+                SqlDataReader dataReader = cmd.ExecuteReader();
 
                 while (dataReader.Read())
                 {
@@ -152,6 +152,21 @@ namespace Sem3FinalProject_Code.DBFacade
             return itemTypes;
         }
 
+        public void AddProducer(string producerEmail, string producerName)
+        {
+            OpenConnection();
+
+            string query = "INSERT INTO Producer VALUES (@Email, @Name)";
+
+            SqlCommand cmd = new SqlCommand(query, connection);
+
+            cmd.Parameters.Add(new SqlParameter("Email", producerEmail));
+            cmd.Parameters.Add(new SqlParameter("Name", producerName));
+            cmd.ExecuteNonQuery();
+
+            CloseConnection();
+        }
+
         public void AddItems(Item[] items, string producerEmail)
         {
             OpenConnection();
@@ -160,16 +175,16 @@ namespace Sem3FinalProject_Code.DBFacade
             IDictionary<string, DBItemType> itemTypes = GetDBItemTypes();
 
             string queryItem = "INSERT INTO Item (Name, ProductNumber, ItemTypeId, ProducerEmail) VALUES (@Name, @ProductNumber, @ItemTypeId, @ProducerEmail);SELECT CAST(scope_identity() AS int)";
-            string queryProperty = "INSERT INTO ItemPropertyValue (PropertyTypeId, ItemId, Value) VALUES (@PropertyTypeId, @ItemId, @Value)";
+            string queryProperty = "INSERT INTO ItemPropertyValue (PropertyId, ItemId, Value) VALUES (@PropertyId, @ItemId, @Value)";
 
-            MySqlCommand cmd = new MySqlCommand("", connection);
+            SqlCommand cmd = new SqlCommand("", connection);
             for (int i = 0; i < items.Length; i++)
             {
                 cmd.CommandText = queryItem;
-                cmd.Parameters.Add(new MySqlParameter("Name", items[i].Name));
-                cmd.Parameters.Add(new MySqlParameter("ProductNumber", items[i].ProductNumber));
-                cmd.Parameters.Add(new MySqlParameter("ItemTypeId", itemTypes[items[i].Type.Name].id));
-                cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
+                cmd.Parameters.Add(new SqlParameter("Name", items[i].Name));
+                cmd.Parameters.Add(new SqlParameter("ProductNumber", items[i].ProductNumber));
+                cmd.Parameters.Add(new SqlParameter("ItemTypeId", itemTypes[items[i].Type.Name].id));
+                cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
                 int itemId = (int)cmd.ExecuteScalar();
 
                 foreach (KeyValuePair<string, DBProperty> kvp in properties)
@@ -178,12 +193,15 @@ namespace Sem3FinalProject_Code.DBFacade
                     if (p != null)
                     {
                         cmd.CommandText = queryProperty;
-                        cmd.Parameters.Add(new MySqlParameter("PropertyTypeId", kvp.Value.id));
-                        cmd.Parameters.Add(new MySqlParameter("ItemId", itemId));
-                        cmd.Parameters.Add(new MySqlParameter("Value", p.Value));
+                        cmd.Parameters.Add(new SqlParameter("PropertyId", kvp.Value.id));
+                        cmd.Parameters.Add(new SqlParameter("ItemId", itemId));
+                        cmd.Parameters.Add(new SqlParameter("Value", p.Value));
+
                         cmd.ExecuteNonQuery();
                     }
+                    cmd.Parameters.Clear();
                 }
+                cmd.Parameters.Clear();
             }
 
             CloseConnection();
@@ -195,14 +213,16 @@ namespace Sem3FinalProject_Code.DBFacade
 
             OpenConnection();
 
-            MySqlCommand cmd = new MySqlCommand("", connection);
+            SqlCommand cmd = new SqlCommand("", connection);
             for (int i = 0; i < items.Length; i++)
             {
                 cmd.CommandText = query;
-                cmd.Parameters.Add(new MySqlParameter("ProductNumber", items[i].ProductNumber));
-                cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
+                cmd.Parameters.Add(new SqlParameter("ProductNumber", items[i].ProductNumber));
+                cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
 
                 cmd.ExecuteNonQuery();
+
+                cmd.Parameters.Clear();
             }
 
             CloseConnection();
@@ -210,7 +230,7 @@ namespace Sem3FinalProject_Code.DBFacade
 
         public IList<Item> GetItems(string producerEmail)
         {
-            string itemQuery = "SELECT Item.ItemId,Item.Name,Item.ProductNumber,ItemType.Name FROM Item,ItemType WHERE ProducerEmail=@ProducerEmail AND Item.ItemTypeId=ItemType.ItemTypeId";
+            string itemQuery = "SELECT Item.ItemId,Item.Name,Item.ProductNumber,ItemType.Name FROM Item,ItemType WHERE ProducerEmail=@ProducerEmail AND Item.ItemTypeId=ItemType.ItemTypeId AND Item.Active = 1";
             string propertiesQuery = "SELECT ItemPropertyValue.Value, Property.Name FROM ItemPropertyValue,Property WHERE ItemId=@ItemId AND Property.PropertyId = ItemPropertyValue.PropertyId";
             IList<Item> items = new List<Item>();
             IList<DBItem> dBItems = new List<DBItem>();
@@ -221,10 +241,10 @@ namespace Sem3FinalProject_Code.DBFacade
 
             IDictionary<string, DBItemType> itemTypes = GetDBItemTypes();
 
-            MySqlCommand cmd = new MySqlCommand(itemQuery, connection);
-            cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
-            MySqlDataReader dataReader = cmd.ExecuteReader();
-            
+            SqlCommand cmd = new SqlCommand(itemQuery, connection);
+            cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
+            SqlDataReader dataReader = cmd.ExecuteReader();
+
             while (dataReader.Read())
             {
                 int id = dataReader.GetInt32(0);
@@ -232,7 +252,7 @@ namespace Sem3FinalProject_Code.DBFacade
                 string productNumber = dataReader.GetString(2);
                 string itemType = dataReader.GetString(3);
 
-                dBItems.Add(new DBItem(id, name, productNumber,itemType));
+                dBItems.Add(new DBItem(id, name, productNumber, itemType));
             }
 
             dataReader.Close();
@@ -242,7 +262,8 @@ namespace Sem3FinalProject_Code.DBFacade
                 IDictionary<string, string> properties = new Dictionary<string, string>();
 
                 cmd.CommandText = propertiesQuery;
-                cmd.Parameters.Add(new MySqlParameter("ItemId", dBItem.id));
+                cmd.Parameters.Add(new SqlParameter("ItemId", dBItem.id));
+
                 dataReader = cmd.ExecuteReader();
 
                 while (dataReader.Read())
@@ -252,13 +273,14 @@ namespace Sem3FinalProject_Code.DBFacade
                     properties.Add(propertyName, propertyValue);
                 }
 
+                cmd.Parameters.Clear();
                 dataReader.Close();
                 itemsProperties.Add(dBItem.id, properties);
             }
 
             CloseConnection();
 
-            foreach(DBItem dBItem in dBItems)
+            foreach (DBItem dBItem in dBItems)
             {
                 Item i = new Item(dBItem.name, dBItem.productNumber, GetItemType(dBItem.itemType), itemsProperties[dBItem.id]);
                 items.Add(i);
@@ -271,37 +293,38 @@ namespace Sem3FinalProject_Code.DBFacade
         {
             ItemType type = null;
 
+            if (connection.State == System.Data.ConnectionState.Closed)
+                OpenConnection();
             IDictionary<string, DBItemType> itemTypes = GetDBItemTypes();
 
-            if(itemTypes.ContainsKey(typeName))
+            if (itemTypes.ContainsKey(typeName))
             {
                 IDictionary<string, Property> defaultProp = new Dictionary<string, Property>();
                 PropertyTypeFactory propertyTypeFactory = new PropertyTypeFactory();
                 string query = "Select * From ItemTypeDefaultProperty,Property,PropertyType WHERE  ItemTypeId = @ItemTypeId AND ItemTypeDefaultProperty.PropertyId = Property.PropertyId AND Property.PropertyTypeId = PropertyType.PropertyTypeId";
 
-                if(connection.State == System.Data.ConnectionState.Closed)
-                    OpenConnection();
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.Add(new SqlParameter("ItemTypeId", itemTypes[typeName].id));
 
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                cmd.Parameters.Add(new MySqlParameter("ItemTypeId", itemTypes[typeName].id));
-
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                SqlDataReader dataReader = cmd.ExecuteReader();
 
                 while (dataReader.Read())
                 {
                     string value = dataReader.GetString(2);
-                    string propertyName = dataReader.GetString(5);
-                    IPropertyType propertyType = propertyTypeFactory.GetPropertyType(propertyName);
+                    string propertyName = dataReader.GetString(4);
+                    string propertyTypeName = dataReader.GetString(7);
+                    IPropertyType propertyType = propertyTypeFactory.GetPropertyType(propertyTypeName);
                     Property p = new Property(value, propertyName, propertyType);
                     defaultProp.Add(propertyName, p);
                 }
 
+                cmd.Parameters.Clear();
                 dataReader.Close();
-                CloseConnection();
 
                 type = new ItemType(itemTypes[typeName].name, defaultProp);
             }
-            
+            if (connection.State == ConnectionState.Open)
+                CloseConnection();
 
             return type;
         }
@@ -312,10 +335,10 @@ namespace Sem3FinalProject_Code.DBFacade
 
             OpenConnection();
 
-            MySqlCommand cmd = new MySqlCommand(query, connection);
-            cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
-            cmd.Parameters.Add(new MySqlParameter("ProductNumber", item.ProductNumber));
-            MySqlDataReader dataReader = cmd.ExecuteReader();
+            SqlCommand cmd = new SqlCommand(query, connection);
+            cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
+            cmd.Parameters.Add(new SqlParameter("ProductNumber", item.ProductNumber));
+            SqlDataReader dataReader = cmd.ExecuteReader();
 
             bool exists = dataReader.HasRows;
 
@@ -332,11 +355,11 @@ namespace Sem3FinalProject_Code.DBFacade
             IDictionary<string, DBProperty> properties = GetDBProperties();
             IDictionary<string, DBItemType> itemTypes = GetDBItemTypes();
 
-            string queryItem = "UPDATE Item SET Name=@ProductName, Active=1, ItemTypeId=@ItemTypeId WHERE ProductNumber=@ProductNumber AND ProducerEmail=@ProducerEmail";
-            string queryProperty = "UPDATE ItemPropertyValue Value=@PropertyValue WHERE PropertyId=@PropertyId AND ItemId=@ItemId";
-            
+            string queryItem = "UPDATE Item SET Name=@ProductName, ItemTypeId=@ItemTypeId WHERE ProductNumber=@ProductNumber AND ProducerEmail=@ProducerEmail";
+            string queryProperty = "UPDATE ItemPropertyValue SET Value=@PropertyValue WHERE PropertyId=@PropertyId AND ItemId=@ItemId";
 
-            MySqlCommand cmd = new MySqlCommand("", connection);
+
+            SqlCommand cmd = new SqlCommand("", connection);
             for (int i = 0; i < items.Length; i++)
             {
                 int? itemId = GetItemId(items[i].ProductNumber, producerEmail);
@@ -344,10 +367,10 @@ namespace Sem3FinalProject_Code.DBFacade
                     throw new KeyNotFoundException("The item with PN:" + items[i].ProductNumber + " does not exist in the database");
 
                 cmd.CommandText = queryItem;
-                cmd.Parameters.Add(new MySqlParameter("ProductName", items[i].Name));
-                cmd.Parameters.Add(new MySqlParameter("ItemTypeId", itemTypes[items[i].Type.Name].id));
-                cmd.Parameters.Add(new MySqlParameter("ProductNumber", items[i].ProductNumber));
-                cmd.Parameters.Add(new MySqlParameter("ProducerEmail", producerEmail));
+                cmd.Parameters.Add(new SqlParameter("ProductName", items[i].Name));
+                cmd.Parameters.Add(new SqlParameter("ItemTypeId", itemTypes[items[i].Type.Name].id));
+                cmd.Parameters.Add(new SqlParameter("ProductNumber", items[i].ProductNumber));
+                cmd.Parameters.Add(new SqlParameter("ProducerEmail", producerEmail));
                 cmd.ExecuteNonQuery();
 
                 foreach (KeyValuePair<string, DBProperty> kvp in properties)
@@ -356,12 +379,15 @@ namespace Sem3FinalProject_Code.DBFacade
                     if (p != null)
                     {
                         cmd.CommandText = queryProperty;
-                        cmd.Parameters.Add(new MySqlParameter("PropertyId", kvp.Value.id));
-                        cmd.Parameters.Add(new MySqlParameter("ItemId", itemId));
-                        cmd.Parameters.Add(new MySqlParameter("PropertyValue", p.Value));
+                        cmd.Parameters.Add(new SqlParameter("PropertyId", kvp.Value.id));
+                        cmd.Parameters.Add(new SqlParameter("ItemId", itemId));
+                        cmd.Parameters.Add(new SqlParameter("PropertyValue", p.Value));
                         cmd.ExecuteNonQuery();
+
                     }
+                    cmd.Parameters.Clear();
                 }
+                cmd.Parameters.Clear();
             }
 
             CloseConnection();
